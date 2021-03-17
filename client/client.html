@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Project1!</title>
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+  <script type="text/JavaScript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js" ></script>
+  <script src="script.js"></script>
+</head>
+<body>
+  <section id="top">
+    <div class="row">
+      <h2>League of Legends Champion Winrates!</h2>
+    </div>
+    <div class="formDiv">
+      <h4>Add/Modify Champion Winrates!</h4>
+      <h3 id="alert"></h3>
+      <form id="winrateForm" action="/updateWR" method="post">
+        <label for="champion">Champion: </label>
+        <select id="selectChampion" name="champion">
+          <option value="swain">Swain</option>
+          <option value="seraphine">Seraphine</option>
+          <option value="hecarim">Hecarim</option>
+          <option value="urgot">Urgot</option>
+          <option value="nocturne">Nocturne</option>
+          <option value="zilean">Zilean</option>
+          <option value="annie">Annie</option>
+          <option value="rumble">Rumble</option>
+          <option value="ivern">Ivern</option>
+          <option value="garen">Garen</option>
+          <option value="heimerdinger">Heimerdinger</option>
+          <option value="veigar">Veigar</option>
+          <option value="fiddlesticks">Fiddlesticks</option>
+          <option value="anivia">Anivia</option>
+          <option value="kassadin">Kassadin</option>
+          <option value="karthus">Karthus</option>
+          <option value="bard">Bard</option>
+          <option value="diana">Diana</option>
+          <option value="skarner">Skarner</option>
+          <option value="neeko">Neeko</option>
+          <option value="ahri">Ahri</option>
+          <option value="pantheon">Pantheon</option>
+          <option value="elise">Elise</option>
+          <option value="wukong">Wukong</option>
+          <option value="galio">Galio</option>
+          <option value="shaco">Shaco</option>
+          <option value="thresh">Thresh</option>
+          <option value="maokai">Maokai</option>
+          <option value="darius">Darius</option>
+          <option value="malphite">Malphite</option>
+          <option value="poppy">Poppy</option>
+          <option value="brand">Brand</option>
+          <option value="sona">Sona</option>
+          <option value="katarina">Katarina</option>
+          <option value="kha'zix">Kha'Zix</option>
+          <option value="nunu & willump">Nunu & Willump</option>
+          <option value="rek'sai">Rek'Sai</option>
+          <option value="warwick">Warwick</option>
+          <option value="vayne">Vayne</option>
+          <option value="cho'gath">Cho'Gath</option>
+          <option value="quinn">Quinn</option>
+          <option value="aurelion sol">Aurelion Sol</option>
+          <option value="udyr">Udyr</option>
+          <option value="riven">Riven</option>
+          <option value="singed">Singed</option>
+          <option value="tristana">Tristana</option>
+          <option value="gnar">Gnar</option>
+          <option value="corki">Corki</option>
+          <option value="morgana">Morgana</option>
+          <option value="jinx">Jinx</option>
+          <option value="lulu">Lulu</option>
+          <option value="taliyah">Taliyah</option>
+          <option value="fizz">Fizz</option>
+          <option value="ekko">Ekko</option>
+          <option value="renekton">Renekton</option>
+          <option value="nocturne">Nocturne</option>
+          <option value="blitzcrank">Blitzcrank</option>
+          <option value="talon">Talon</option>
+          <option value="leona">Leona</option>
+          <option value="sion">Sion</option>
+          <option value="vladimir">Vladimir</option>
+          <option value="viego">Viego</option>
+          <option value="evelynn">Evelynn</option>
+          <option value="vel'koz">Vel'Koz</option>
+          <option value="shen">Shen</option>
+          <option value="kog'maw">Kog'Maw</option>
+          <option value="nami">Nami</option>
+          <option value="nasus">Nasus</option>
+          <option value="sett">Sett</option>
+          <option value="malzahar">Malzahar</option>
+          <option value="zed">Zed</option>
+          <option value="janna">Janna</option>
+          <option value="taric">Taric</option>
+          <option value="kennen">Kennen</option>
+          <option value="miss fortune">Miss Fortune</option>
+          <option value="jhin">Jhin</option>
+          <option value="kai'sa">Kai'Sa</option>
+          <option value="karma">Karma</option>
+          <option value="draven">Draven</option>
+          <option value="rengar">Rengar</option>
+          <option value="sivir">Sivir</option>
+          <option value="twitch">Twitch</option>
+          <option value="gragas">Gragas</option>
+          <option value="lux">Lux</option>
+          <option value="lissandra">Lissandra</option>
+          <option value="alistar">Alistar</option>
+        </select>
+        <label for="role">Role: </label>
+        <select id="selectRole" name="role">
+          <option value="top">Top</option>
+          <option value="jungle">Jungle</option>
+          <option value="top">Middle</option>
+          <option value="top">Bottom</option>
+          <option value="top">Support</option>
+        </select>
+        <label for="newWR">Winrate of additional games (%): </label>
+        <input id="newWRField" name="newWR" placeholder="50.1"/>
+        <label for="games">Amount of games played: </label>
+        <input id="gamesField" name="games" placeholder="9001"/>
+        <input type="submit" value="Add Games" class="button"/>
+      </form>
+      <hr>
+      <form id="getDataForm" action="/getData">
+        <label for="getDataChampion">Champion: </label>
+        <select id="getDataChampion" name="getDataChampion">
+          <option value="swain">Swain</option>
+          <option value="seraphine">Seraphine</option>
+          <option value="hecarim">Hecarim</option>
+          <option value="urgot">Urgot</option>
+          <option value="nocturne">Nocturne</option>
+          <option value="zilean">Zilean</option>
+          <option value="annie">Annie</option>
+          <option value="rumble">Rumble</option>
+          <option value="ivern">Ivern</option>
+          <option value="garen">Garen</option>
+          <option value="heimerdinger">Heimerdinger</option>
+          <option value="veigar">Veigar</option>
+          <option value="fiddlesticks">Fiddlesticks</option>
+          <option value="anivia">Anivia</option>
+          <option value="kassadin">Kassadin</option>
+          <option value="karthus">Karthus</option>
+          <option value="bard">Bard</option>
+          <option value="diana">Diana</option>
+          <option value="skarner">Skarner</option>
+          <option value="neeko">Neeko</option>
+          <option value="ahri">Ahri</option>
+          <option value="pantheon">Pantheon</option>
+          <option value="elise">Elise</option>
+          <option value="wukong">Wukong</option>
+          <option value="galio">Galio</option>
+          <option value="shaco">Shaco</option>
+          <option value="thresh">Thresh</option>
+          <option value="maokai">Maokai</option>
+          <option value="darius">Darius</option>
+          <option value="malphite">Malphite</option>
+          <option value="poppy">Poppy</option>
+          <option value="brand">Brand</option>
+          <option value="sona">Sona</option>
+          <option value="katarina">Katarina</option>
+          <option value="kha'zix">Kha'Zix</option>
+          <option value="nunu & willump">Nunu & Willump</option>
+          <option value="rek'sai">Rek'Sai</option>
+          <option value="warwick">Warwick</option>
+          <option value="vayne">Vayne</option>
+          <option value="cho'gath">Cho'Gath</option>
+          <option value="quinn">Quinn</option>
+          <option value="aurelion sol">Aurelion Sol</option>
+          <option value="udyr">Udyr</option>
+          <option value="riven">Riven</option>
+          <option value="singed">Singed</option>
+          <option value="tristana">Tristana</option>
+          <option value="gnar">Gnar</option>
+          <option value="corki">Corki</option>
+          <option value="morgana">Morgana</option>
+          <option value="jinx">Jinx</option>
+          <option value="lulu">Lulu</option>
+          <option value="taliyah">Taliyah</option>
+          <option value="fizz">Fizz</option>
+          <option value="ekko">Ekko</option>
+          <option value="renekton">Renekton</option>
+          <option value="nocturne">Nocturne</option>
+          <option value="blitzcrank">Blitzcrank</option>
+          <option value="talon">Talon</option>
+          <option value="leona">Leona</option>
+          <option value="sion">Sion</option>
+          <option value="vladimir">Vladimir</option>
+          <option value="viego">Viego</option>
+          <option value="evelynn">Evelynn</option>
+          <option value="vel'koz">Vel'Koz</option>
+          <option value="shen">Shen</option>
+          <option value="kog'maw">Kog'Maw</option>
+          <option value="nami">Nami</option>
+          <option value="nasus">Nasus</option>
+          <option value="sett">Sett</option>
+          <option value="malzahar">Malzahar</option>
+          <option value="zed">Zed</option>
+          <option value="janna">Janna</option>
+          <option value="taric">Taric</option>
+          <option value="kennen">Kennen</option>
+          <option value="miss fortune">Miss Fortune</option>
+          <option value="jhin">Jhin</option>
+          <option value="kai'sa">Kai'Sa</option>
+          <option value="karma">Karma</option>
+          <option value="draven">Draven</option>
+          <option value="rengar">Rengar</option>
+          <option value="sivir">Sivir</option>
+          <option value="twitch">Twitch</option>
+          <option value="gragas">Gragas</option>
+          <option value="lux">Lux</option>
+          <option value="lissandra">Lissandra</option>
+          <option value="alistar">Alistar</option>
+        </select>
+        <label for="getDataRole">Role: </label>
+        <select id="getDataRole" name="getDataRole">
+          <option value="top">Top</option>
+          <option value="jungle">Jungle</option>
+          <option value="top">Middle</option>
+          <option value="top">Bottom</option>
+          <option value="top">Support</option>
+        </select>
+        <label for="methodSelect">Method: </label>
+        <select id="methodSelect" name="methodSelect">
+          <option value="GET">GET</option>
+          <option value="HEAD">HEAD</option>
+        </select>
+        <input type="submit" value="Get Winrate" class="button"/>
+      </form>
+    </div>  
+  </section>
+  <section id="content">
+
+  </section>
+</body>
+</html>
