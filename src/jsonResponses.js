@@ -1,23 +1,23 @@
 const fs = require('fs');
 
 const dataset = fs.readFileSync(`${__dirname}/../src/winrates.csv`, 'utf8');
-let processedDataset;
+let newData;
 
 const processDataset = (data) => {
   const allLines = data.split(/\r\n|\n/);
-  const headers = allLines[0].split(',');
-  const newData = {};
+  const returnData = {};
 
-  for(let i = 1; i < allLines.length; i++) {
-    let tempData = allLines[i].split(',');
-    let champion = tempData[0];
-    newData[champion] = {};
-    newData[champion].champion = champion;
-    newData[champion].winrate = parseFloat(tempData[1]);
-    newData[champion].role = tempData[2];
-    newData[champion].matches = parseFloat(tempData[3]);
+  for (let i = 1; i < allLines.length; i++) {
+    const tempData = allLines[i].split(',');
+    const champion = tempData[0];
+    const role = tempData[2];
+    returnData[`${champion} ${role}`] = {};
+    returnData[`${champion} ${role}`].champion = champion;
+    returnData[`${champion} ${role}`].winrate = parseFloat(tempData[1]);
+    returnData[`${champion} ${role}`].role = role;
+    returnData[`${champion} ${role}`].matches = parseFloat(tempData[3]);
   }
-  return newData;
+  return returnData;
 };
 
 const respondJSON = (req, res, status, obj) => {
@@ -31,66 +31,64 @@ const respondJSONMeta = (req, res, status) => {
   res.end();
 };
 
-const getData = (req, res, body) => {
-  const responseJSON = {
-    message: 'The selected champion and role doesn\'t currently have an entry.',
-  };
-  
-  console.dir(`Body.champion: ${body.champion}`);
-  console.dir(`Dataset has: ${dataset[body.champion]}`);
+const getData = (req, res, params) => {
+  const responseJSON = {};
 
-  if(!processedDataset[body.champion]) { // If the entry doesn't exist
+  if (!newData[`${params.champion} ${params.role}`]) { // If the entry doesn't exist
+    // console.dir(`${params.champion} ${params.role} does not exist.`);
+    responseJSON.message = 'The selected champion and role doesn\'t currently have an entry.';
     responseJSON.id = 'missingEntry';
     return respondJSON(req, res, 404, responseJSON);
-  } else { // If it does
-    responseJSON.winrate = processedDataset[champion].winrate;
-    responseJSON.message = `Data retrieved successfully!`;
-    return respondJSON(req, res, 200, responseJSON);
-  }
+  } // If it does
+  responseJSON.winrate = newData[`${params.champion} ${params.role}`].winrate;
+  return respondJSON(req, res, 200, responseJSON);
 };
 
-const getDataMeta = (req, res, body) => respondJSONMeta(req, res, !processedDataset[body.champion] ? 200 : 400);
+const getDataMeta = (req, res, params) => respondJSONMeta(req, res, newData[`${params.champion} ${params.role}`] ? 200 : 400);
 
-const getUsersMeta = (req, res) => respondJSONMeta(req, res, 200);
-
-const modifyData = (req, res) => {
-  const repsonseJSON = {
-    message: 'Selection invalid. Either that role doesn\'t exist for the champion or the inputted values are invalid.',
+const modifyData = (req, res, body) => {
+  const responseJSON = {
+    message: 'Selection invalid. The inputted values are invalid.',
   };
 
-  if(!body.champion || !body.role || !body.newWR || !body.games
-    || !isNaN(body.newWR) || !isNaN(parseFloat(body.newWR)) 
-    || !isNaN(body.games) || !isNaN(parseFloat(body.games))) {
+  //  If any data in request body is invalid, return 400
+  if (!body.champion || !body.role || !body.newWR || !body.games
+    || Number.isNaN(body.newWR) || Number.isNaN(parseFloat(body.newWR))
+    || Number.isNaN(body.games) || Number.isNaN(parseFloat(body.games))) {
     responseJSON.id = 'badRequest';
+    // console.dir('Something missing in request')
     return respondJSON(req, res, 400, responseJSON);
   }
 
   let responseCode = 201; // Created
 
-  if(processedDataset[body.champion]) { // If the WR already exists
+  if (newData[`${body.champion} ${body.role}`]) { // If the WR already exists
     responseCode = 204;
-    let val1 = processedDataset[body.champion].matches * (processedDataset[body.champion].winrate/100);
-    let val2 = body.games * (body.newWR / 100);
-    processedDataset[body.champion].winrate = (val1+val2)/(processedDataset[body.champion].matches 
-      + body.games);
-    processedDataset[body.champion].matches = processedDataset[body.champion].matches + body.games;
+    //  # of wins of existing data
+    const val1 = newData[`${body.champion} ${body.role}`].matches * (newData[`${body.champion} ${body.role}`].winrate / 100);
+    //  # of wins of new Data
+    const val2 = body.games * (body.newWR / 100);
+    //  Update winrate based on combined data
+    newData[`${body.champion} ${body.role}`].winrate = ((val1 + val2) / (parseInt(newData[`${body.champion} ${body.role}`].matches, 10)
+      + parseInt(body.games, 10))) * 100;
+    newData[`${body.champion} ${body.role}`].matches = newData[`${body.champion} ${body.role}`].matches + body.games;
     //  Send new WR to client
-    responseJSON.winrate = processedDataset[body.champion].winrate;
+    responseJSON.winrate = newData[`${body.champion} ${body.role}`].winrate;
   } else { // If the WR doesn't exist
-    processedDataset[body.champion] = {};
-    processedDataset[body.champion].champion = body.champion;
-    processedDataset[body.champion].role = body.role;
-    processedDataset[body.champion].winrate = body.newWR;
-    processedDataset[body.champion].matches = body.games;
+    newData[`${body.champion} ${body.role}`] = {};
+    newData[`${body.champion} ${body.role}`].champion = body.champion;
+    newData[`${body.champion} ${body.role}`].role = body.role;
+    newData[`${body.champion} ${body.role}`].winrate = body.newWR;
+    newData[`${body.champion} ${body.role}`].matches = body.games;
   }
 
-  if(responseCode === 201) {
+  if (responseCode === 201) {
     responseJSON.message = 'New Role Data Created Successfully!';
     return respondJSON(req, res, responseCode, responseJSON);
   }
   //  else or if responseCode === 204
   return respondJSONMeta(req, res, responseCode);
-}
+};
 
 const notFound = (req, res) => {
   const responseJSON = {
@@ -102,11 +100,8 @@ const notFound = (req, res) => {
 };
 const notFoundMeta = (req, res) => respondJSONMeta(req, res, 404);
 
-(() => {  //  Run this when code loads
-  processedDataset = processDataset(dataset);
-  if(processedDataset) {
-    console.dir('Dataset processed!');
-  }
+(() => { //  Run this when code loads
+  newData = processDataset(dataset);
 })();
 
 module.exports = {
@@ -115,4 +110,4 @@ module.exports = {
   modifyData,
   notFound,
   notFoundMeta,
-};  
+};

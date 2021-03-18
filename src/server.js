@@ -7,7 +7,7 @@ const jsonHandler = require('./jsonResponses.js');
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const handlePost = (req, res, parsedUrl) => {
-  if (parsedUrl.pathname === '/addUser') {
+  if (parsedUrl.pathname === '/updateWR') {
     const body = [];
 
     req.on('error', () => {
@@ -24,16 +24,23 @@ const handlePost = (req, res, parsedUrl) => {
       const bodyString = Buffer.concat(body).toString();
       const bodyParams = query.parse(bodyString);
 
-      jsonHandler.addUser(req, res, bodyParams);
+      jsonHandler.modifyData(req, res, bodyParams);
     });
   }
 };
 
 const handleHead = (req, res, parsedUrl) => {
   switch (parsedUrl.pathname) {
-    case '/getData':
-      jsonHandler.getUsersMeta(req, res);
+    case '/getData': {
+      const params = JSON.parse(
+        `{"${decodeURI(parsedUrl.query)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"')}"}`,
+      );
+      jsonHandler.getDataMeta(req, res, params);
       break;
+    }
     case '/notReal':
     default:
       jsonHandler.notFoundMeta(req, res);
@@ -42,7 +49,7 @@ const handleHead = (req, res, parsedUrl) => {
 };
 
 const handleGet = (req, res, parsedUrl) => {
-  switch(parsedUrl.pathname) {
+  switch (parsedUrl.pathname) {
     case '/':
       htmlHandler.getIndex(req, res);
       break;
@@ -52,26 +59,17 @@ const handleGet = (req, res, parsedUrl) => {
     case '/script.js':
       htmlHandler.getScript(req, res);
       break;
-    case '/getData':
-      const body = [];
-
-      req.on('error', () => {
-        res.statusCode = 400;
-        res.end();
-      });
-
-      req.on('data', (chunk) => {
-        body.push(chunk);
-      });
-
-      req.on('end', () => {
-        const bodyString = Buffer.concat(body).toString();
-        const bodyParams = query.parse(bodyString);
-        console.log(bodyParams);
-
-        jsonHandler.getData(req, res, bodyParams);
-      });
+    case '/getData': {
+      const params = JSON.parse(
+        `{"${decodeURI(parsedUrl.query)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"')}"}`,
+      );
+      // Credit: https://stackoverflow.com/a/8649003/14783530
+      jsonHandler.getData(req, res, params);
       break;
+    }
     default:
       jsonHandler.notFound(req, res);
       break;
@@ -80,12 +78,9 @@ const handleGet = (req, res, parsedUrl) => {
 
 const onRequest = (req, res) => {
   const parsedUrl = url.parse(req.url);
-  console.dir(req.method + " " + parsedUrl.pathname);
-  if(parsedUrl.query) {
-    console.dir(parsedUrl.query);
-  }
+  //console.dir(`${req.method} -> ${parsedUrl.pathname}`);
 
-  switch(req.method) {
+  switch (req.method) {
     case 'POST':
     case 'post':
       handlePost(req, res, parsedUrl);
